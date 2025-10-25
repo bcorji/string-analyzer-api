@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, validator
 from typing import Dict, Optional, List
 from datetime import datetime
@@ -6,7 +7,22 @@ import hashlib
 from collections import Counter
 import re
 
-app = FastAPI(title="String Analysis API", version="1.0.0")
+# Custom JSON Response with pretty printing
+class PrettyJSONResponse(JSONResponse):
+    def render(self, content) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=2,
+            separators=(", ", ": "),
+        ).encode("utf-8")
+
+app = FastAPI(title="String Analyzer API",
+              version="1.0.0",
+              description="String Analyzer API for analyzing strings and storing their computed properties",
+              default_response_class=PrettyJSONResponse  # Pretty JSON by default
+             )
 
 # In-memory storage (using SHA256 hash as key)
 string_store: Dict[str, dict] = {}
